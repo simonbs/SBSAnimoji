@@ -6,15 +6,15 @@ Fooling around with Apples private framework AvatarKit, the framework used in Me
 
 ### What you get
 
-- An example of how to use Apples AvatarKit.
+- Record Animoji videos of up to 20 seconds. Currently looking into extending this duration.
 - Share your Animoji videos with the native share sheet.
 - Export videos to your photo library from the native sheet sheet.
-- Record Animoji videos of up to 20 seconds. Currently looking into extending this duration.
-
+- An example of how to use Apples AvatarKit.
 
 ### What you don't get
 
 - Error handling. Should you encounter an error, try restarting the app.
+- Support for the simulator. Run the app on your phone instead.
 
 # Notice
 
