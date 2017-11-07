@@ -6,7 +6,7 @@ Fooling around with Apples private framework AvatarKit, the framework used in Me
 
 ### What you get
 
-- Record Animoji videos of up to 60 seconds. Previously 20 seconds. Thanks, [Khaos Tian](https://github.com/KhaosT)!.
+- Record Animoji videos of up to 60 seconds. Previously 20 seconds. Thanks, [Khaos Tian](https://github.com/KhaosT)!
 - Share your Animoji videos with the native share sheet.
 - Export videos to your photo library from the native sheet sheet.
 - An example of how to use Apples AvatarKit.
