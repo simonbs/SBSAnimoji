@@ -71,12 +71,12 @@
     self.previewButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.previewButton.translatesAutoresizingMaskIntoConstraints = NO;
     self.previewButton.hidden = YES;
-    [self.previewButton setImage:[UIImage imageNamed:@"play"] forState:UIControlStateNormal];
+    [self.previewButton setImage:[UIImage imageNamed:@"start-previewing"] forState:UIControlStateNormal];
     [self addSubview:self.previewButton];
     
     self.recordButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.recordButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.recordButton setImage:[UIImage imageNamed:@"record"] forState:UIControlStateNormal];
+    [self.recordButton setImage:[UIImage imageNamed:@"start-recording"] forState:UIControlStateNormal];
     [self addSubview:self.recordButton];
     
     self.shareButton = [UIButton buttonWithType:UIButtonTypeSystem];

@@ -144,9 +144,18 @@
 }
 
 - (void)startPreview {
-    self.contentView.previewButton.hidden = YES;
+    [self.contentView.previewButton removeTarget:self action:@selector(startPreview) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.previewButton addTarget:self action:@selector(stopPreview) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.previewButton setImage:[UIImage imageNamed:@"stop-previewing"] forState:UIControlStateNormal];
     [self.contentView.puppetView stopPreviewing];
     [self.contentView.puppetView startPreviewing];
+}
+
+- (void)stopPreview {
+    [self.contentView.previewButton removeTarget:self action:@selector(stopPreview) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.previewButton addTarget:self action:@selector(startPreview) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.previewButton setImage:[UIImage imageNamed:@"start-previewing"] forState:UIControlStateNormal];
+    [self.contentView.puppetView stopPreviewing];
 }
 
 - (NSURL *)movieURL {
@@ -163,14 +172,14 @@
 
 - (void)puppetViewDidFinishPlaying:(SBSPuppetView *)puppetView {
     if (!puppetView.isRecording) {
-        self.contentView.previewButton.hidden = NO;
+        [self stopPreview];
     }
 }
 
 - (void)puppetViewDidStartRecording:(SBSPuppetView *)puppetView {
     self.hasExportedMovie = NO;
     [self removeExistingMovieFile];
-    [self.contentView.recordButton setImage:[UIImage imageNamed:@"stop"] forState:UIControlStateNormal];
+    [self.contentView.recordButton setImage:[UIImage imageNamed:@"stop-recording"] forState:UIControlStateNormal];
     self.contentView.durationLabel.text = @"00:00";
     self.contentView.durationLabel.hidden = NO;
     self.durationTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(durationTimerTriggered) userInfo:nil repeats:YES];
@@ -194,7 +203,7 @@
     self.contentView.deleteButton.hidden = NO;
     self.contentView.previewButton.hidden = NO;
     self.contentView.durationLabel.hidden = YES;
-    [self.contentView.recordButton setImage:[UIImage imageNamed:@"record"] forState:UIControlStateNormal];
+    [self.contentView.recordButton setImage:[UIImage imageNamed:@"start-recording"] forState:UIControlStateNormal];
     self.contentView.thumbnailsCollectionView.userInteractionEnabled = YES;
     [UIView animateWithDuration:0.3 animations:^{
         self.contentView.thumbnailsCollectionView.alpha = 1;
