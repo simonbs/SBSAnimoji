@@ -12,8 +12,6 @@
 #import "AVTPuppetView.h"
 #import "PuppetThumbnailCollectionViewCell.h"
 
-static void *SBSPuppetViewRecordingContext = &SBSPuppetViewRecordingContext;
-
 @interface MainViewController () <SBSPuppetViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate>
 @property (nonatomic, readonly) MainView *contentView;
 @property (nonatomic, strong) NSTimer *durationTimer;
@@ -57,15 +55,6 @@ static void *SBSPuppetViewRecordingContext = &SBSPuppetViewRecordingContext;
     [self.contentView.shareButton addTarget:self action:@selector(share) forControlEvents:UIControlEventTouchUpInside];
     [self showPuppetNamed:self.puppetNames[0]];
     [self.contentView.thumbnailsCollectionView selectItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-    [self.contentView.puppetView addObserver:self forKeyPath:@"recording" options:NSKeyValueObservingOptionNew context:&SBSPuppetViewRecordingContext];
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    if ([keyPath isEqualToString:@"isRecording"] && context == SBSPuppetViewRecordingContext) {
-        NSLog(@"%@", self.contentView.puppetView.isRecording ? @"Recording" : @"Not recording");
-    } else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
 }
 
 // Pragma mark: - Private
