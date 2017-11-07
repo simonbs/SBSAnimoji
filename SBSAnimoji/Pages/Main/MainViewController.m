@@ -11,7 +11,6 @@
 #import "AVTPuppet.h"
 #import "AVTPuppetView.h"
 #import "PuppetThumbnailCollectionViewCell.h"
-#import <objc/runtime.h>
 
 static void *SBSPuppetViewRecordingContext = &SBSPuppetViewRecordingContext;
 
