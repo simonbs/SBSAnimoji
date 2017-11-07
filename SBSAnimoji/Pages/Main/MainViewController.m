@@ -17,6 +17,7 @@
 @property (nonatomic, strong) NSTimer *durationTimer;
 @property (nonatomic, strong) NSArray *puppetNames;
 @property (nonatomic, assign) BOOL hasExportedMovie;
+@property (nonatomic, assign, getter=isExporting) BOOL exporting;
 @end
 
 @implementation MainViewController
@@ -76,6 +77,7 @@
     if (self.hasExportedMovie) {
         completion(movieURL);
     } else {
+        self.exporting = YES;
         [self.contentView.activityIndicatorView startAnimating];
         self.contentView.deleteButton.enabled = NO;
         self.contentView.shareButton.hidden = YES;
@@ -85,6 +87,7 @@
             [weakSelf.contentView.activityIndicatorView stopAnimating];
             weakSelf.contentView.deleteButton.enabled = YES;
             weakSelf.contentView.shareButton.hidden = NO;
+            weakSelf.exporting = NO;
             completion(movieURL);
         }];
     }
@@ -178,6 +181,12 @@
 }
 
 - (void)puppetViewDidStopRecording:(SBSPuppetView *)puppetView {
+    if (self.isExporting) {
+        // The callback is called when we start exporting.
+        // It's not intuitive but internally, AVTPuppetView is
+        // calling stopRecording which then triggers this callback.
+        return;
+    }
     [self.durationTimer invalidate];
     self.durationTimer = nil;
     self.contentView.recordButton.hidden = YES;
