@@ -11,13 +11,23 @@
 #import "AVTPuppet.h"
 #import "AVTPuppetView.h"
 #import "PuppetThumbnailCollectionViewCell.h"
+@import YouTubeKit;
+@import AVFoundation;
 
-@interface MainViewController () <SBSPuppetViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate>
+@interface MainViewController () <SBSPuppetViewDelegate, YouTubePickerViewControllerDelegate, YouTubePlayerViewControllerDelegate, UICollectionViewDataSource, UICollectionViewDelegate>
 @property (nonatomic, readonly) MainView *contentView;
 @property (nonatomic, strong) NSTimer *durationTimer;
 @property (nonatomic, strong) NSArray *puppetNames;
 @property (nonatomic, assign) BOOL hasExportedMovie;
+@property (nonatomic, assign) BOOL hasRecording;
 @property (nonatomic, assign, getter=isExporting) BOOL exporting;
+@property (nonatomic, copy) NSString *youTubeVideoId;
+@property (nonatomic, assign) CMTime audioStartTime;
+@property (nonatomic, assign) CMTime audioEndTime;
+@property (nonatomic, strong) YouTubePlayerViewController *playerViewController;
+@property (nonatomic, strong) YouTubeMergerOperation *youTubeMergerOperation;
+@property (nonatomic, readonly) BOOL isReadyForMergingYouTubeAudio;
+@property (nonatomic, strong) NSString *youTubeAPIKey;
 @end
 
 @implementation MainViewController
@@ -28,6 +38,13 @@
     if (self = [super init]) {
         self.title = NSLocalizedString(@"MAIN_TITLE", @"");
         self.puppetNames = [AVTPuppet puppetNames];
+        self.playerViewController = [[YouTubePlayerViewController alloc] init];
+        self.playerViewController.delegate = self;
+        self.hasRecording = NO;
+        NSString *youTubeAPIKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"SBSYouTubeAPIKey"];
+        if (youTubeAPIKey != nil && youTubeAPIKey.length > 0) {
+            self.youTubeAPIKey = youTubeAPIKey;
+        }
     }
     return self;
 }
@@ -54,11 +71,28 @@
     [self.contentView.deleteButton addTarget:self action:@selector(removeRecording) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView.previewButton addTarget:self action:@selector(startPreview) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView.shareButton addTarget:self action:@selector(share) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.pickAudioButton addTarget:self action:@selector(pickAudio) forControlEvents:UIControlEventTouchUpInside];
     [self showPuppetNamed:self.puppetNames[0]];
     [self.contentView.thumbnailsCollectionView selectItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+    [self addChildViewController:self.playerViewController];
+    [self.contentView addPlayerView:self.playerViewController.view];
+    [self.playerViewController didMoveToParentViewController:self];
+    [self updateThumbnailsContentInset];
+    self.contentView.pickAudioButton.hidden = self.youTubeAPIKey == nil;
 }
 
 // Pragma mark: - Private
+
+- (void)updateThumbnailsContentInset {
+    UIEdgeInsets defaultContentInsets = UIEdgeInsetsMake(15, 7, 15, 7);
+    BOOL showsYouTubeVideo = self.youTubeVideoId != nil;
+    if (showsYouTubeVideo) {
+        CGFloat playerContainerBottomSpacing = self.view.bounds.size.height - CGRectGetMinY(self.contentView.playerContainerView.frame);
+        self.contentView.thumbnailsCollectionView.contentInset = UIEdgeInsetsMake(defaultContentInsets.top, defaultContentInsets.left, defaultContentInsets.bottom + playerContainerBottomSpacing, defaultContentInsets.right);
+    } else {        
+        self.contentView.thumbnailsCollectionView.contentInset = defaultContentInsets;
+    }
+}
 
 - (void)share {
     __weak typeof(self) weakSelf = self;
@@ -73,42 +107,76 @@
 }
 
 - (void)exportMovieIfNecessary:(void(^)(NSURL *))completion {
-    NSURL *movieURL = [self movieURL];
+    NSURL *animojiMovieURL = [self animojiMovieURL];
     if (self.hasExportedMovie) {
-        completion(movieURL);
+        completion(animojiMovieURL);
     } else {
         self.exporting = YES;
         [self.contentView.activityIndicatorView startAnimating];
         self.contentView.deleteButton.enabled = NO;
         self.contentView.shareButton.hidden = YES;
         __weak typeof(self) weakSelf = self;
-        [self.contentView.puppetView exportMovieToURL:movieURL options:nil completionHandler:^{
-            weakSelf.hasExportedMovie = YES;
-            [weakSelf.contentView.activityIndicatorView stopAnimating];
-            weakSelf.contentView.deleteButton.enabled = YES;
-            weakSelf.contentView.shareButton.hidden = NO;
-            weakSelf.exporting = NO;
-            completion(movieURL);
+        [self.contentView.puppetView exportMovieToURL:animojiMovieURL options:nil completionHandler:^{
+            void(^didFinishExport)(NSURL*) = ^void(NSURL *movieURL) {
+                weakSelf.hasExportedMovie = YES;
+                [weakSelf.contentView.activityIndicatorView stopAnimating];
+                weakSelf.contentView.deleteButton.enabled = YES;
+                weakSelf.contentView.shareButton.hidden = NO;
+                weakSelf.exporting = NO;
+                completion(movieURL);
+            };
+            if (weakSelf.isReadyForMergingYouTubeAudio) {
+                [weakSelf mergeYouTubeVideoId:self.youTubeVideoId intoAnimojiVideo:animojiMovieURL audioStartTime:self.audioStartTime audioEndTime:self.audioEndTime completion:^(NSURL *mergedMovieURL) {
+                    if (mergedMovieURL == nil) {
+                        return;
+                    }
+                    didFinishExport(mergedMovieURL);
+                }];
+            } else {
+                didFinishExport(animojiMovieURL);
+            }
         }];
     }
 }
 
+- (void)mergeYouTubeVideoId:(NSString *)videoId intoAnimojiVideo:(NSURL *)animojiVideoURL audioStartTime:(CMTime)audioStartTime audioEndTime:(CMTime)audioEndTime completion:(void(^)(NSURL*))completion {
+    YouTubeMerger *merger = [[YouTubeMerger alloc] init];
+    [self removeExistingMergedMovieFile];
+    NSURL *exportURL = [self mergedMovieURL];
+    [self.youTubeMergerOperation cancel];
+    self.youTubeMergerOperation = [merger mergeWithAnimojiVideoURL:animojiVideoURL videoId:videoId startTime:audioStartTime endTime:audioEndTime exportURL:exportURL success:^(NSURL * _Nonnull movieURL) {
+        completion(movieURL);
+    } failure:^(NSError * _Nonnull error) {
+        NSLog(@"%@", error);
+    }];
+}
+
 - (void)removeRecording {
     self.hasExportedMovie = NO;
-    [self removeExistingMovieFile];
+    self.hasRecording = NO;
+    [self removeExistingAnimojiMovieFile];
     [self.contentView.puppetView stopRecording];
     [self.contentView.puppetView stopPreviewing];
     self.contentView.recordButton.hidden = NO;
     self.contentView.deleteButton.hidden = YES;
     self.contentView.previewButton.hidden = YES;
     self.contentView.shareButton.hidden = YES;
+    [self.playerViewController showControls];
+    [self.playerViewController pause];
 }
 
 - (void)toggleRecording {
     if (self.contentView.puppetView.isRecording) {
+        self.audioEndTime = self.playerViewController.currentTime;
+        self.hasRecording = YES;
         [self.contentView.puppetView stopRecording];
     } else {
+        self.audioStartTime = self.playerViewController.currentTime;
         [self.contentView.puppetView startRecording];
+        if (self.youTubeVideoId != nil) {
+            [self.playerViewController hideControls];
+            [self.playerViewController play];
+        }
     }
 }
 
@@ -131,9 +199,47 @@
     self.contentView.durationLabel.text = [NSString stringWithFormat:@"%@:%@", strMinutes, strSeconds];
 }
 
-- (void)removeExistingMovieFile {
+- (void)startPreview {
+    [self.contentView.previewButton removeTarget:self action:@selector(startPreview) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.previewButton addTarget:self action:@selector(stopPreview) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.previewButton setImage:[UIImage imageNamed:@"stop-previewing"] forState:UIControlStateNormal];
+    [self.contentView.puppetView stopPreviewing];
+    [self.contentView.puppetView startPreviewing];
+    if (self.isReadyForMergingYouTubeAudio) {
+        self.contentView.puppetView.mute = YES;
+        [self.playerViewController seekTo:self.audioStartTime];
+        [self.playerViewController play];
+    }
+}
+
+- (void)stopPreview {
+    [self.contentView.previewButton removeTarget:self action:@selector(stopPreview) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.previewButton addTarget:self action:@selector(startPreview) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.previewButton setImage:[UIImage imageNamed:@"start-previewing"] forState:UIControlStateNormal];
+    [self.contentView.puppetView stopPreviewing];
+    if (self.isReadyForMergingYouTubeAudio) {
+        [self.playerViewController pause];
+        self.contentView.puppetView.mute = NO;
+        [self.playerViewController seekTo:self.audioStartTime];
+    }
+}
+
+- (void)showPuppetNamed:(NSString *)puppetName {
+    AVTPuppet *puppet = [AVTPuppet puppetNamed:puppetName options:nil];
+    [self.contentView.puppetView setAvatarInstance:(AVTAvatarInstance *)puppet];
+}
+
+- (void)pickAudio {
+    [self.playerViewController removeVideo];
+    YouTubePickerViewController *youTubePickerViewController = [[YouTubePickerViewController alloc] initWithKey:self.youTubeAPIKey];
+    youTubePickerViewController.delegate = self;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:youTubePickerViewController];
+    [self presentViewController:navigationController animated:YES completion:nil];
+}
+
+- (void)removeExistingAnimojiMovieFile {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSURL *movieURL = [self movieURL];
+    NSURL *movieURL = [self animojiMovieURL];
     if ([fileManager fileExistsAtPath:movieURL.path]) {
         NSError *error = nil;
         [fileManager removeItemAtURL:movieURL error:&error];
@@ -143,29 +249,33 @@
     }
 }
 
-- (void)startPreview {
-    [self.contentView.previewButton removeTarget:self action:@selector(startPreview) forControlEvents:UIControlEventTouchUpInside];
-    [self.contentView.previewButton addTarget:self action:@selector(stopPreview) forControlEvents:UIControlEventTouchUpInside];
-    [self.contentView.previewButton setImage:[UIImage imageNamed:@"stop-previewing"] forState:UIControlStateNormal];
-    [self.contentView.puppetView stopPreviewing];
-    [self.contentView.puppetView startPreviewing];
+- (void)removeExistingMergedMovieFile {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *movieURL = [self mergedMovieURL];
+    if ([fileManager fileExistsAtPath:movieURL.path]) {
+        NSError *error = nil;
+        [fileManager removeItemAtURL:movieURL error:&error];
+        if (error) {
+            NSLog(@"%@", error);
+        }
+    }
 }
 
-- (void)stopPreview {
-    [self.contentView.previewButton removeTarget:self action:@selector(stopPreview) forControlEvents:UIControlEventTouchUpInside];
-    [self.contentView.previewButton addTarget:self action:@selector(startPreview) forControlEvents:UIControlEventTouchUpInside];
-    [self.contentView.previewButton setImage:[UIImage imageNamed:@"start-previewing"] forState:UIControlStateNormal];
-    [self.contentView.puppetView stopPreviewing];
+- (BOOL)isReadyForMergingYouTubeAudio {
+    BOOL hasYouTubeVideoId = self.youTubeVideoId != nil;
+    BOOL hasAudioStartTime = CMTIME_COMPARE_INLINE(self.audioStartTime, !=, kCMTimeInvalid);
+    BOOL hasAudioEndTime = CMTIME_COMPARE_INLINE(self.audioEndTime, !=, kCMTimeInvalid);
+    return hasYouTubeVideoId && hasAudioStartTime && hasAudioEndTime;
 }
 
-- (NSURL *)movieURL {
+- (NSURL *)animojiMovieURL {
     NSURL *documentURL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
     return [documentURL URLByAppendingPathComponent:@"animoji.mov"];
 }
 
-- (void)showPuppetNamed:(NSString *)puppetName {
-    AVTPuppet *puppet = [AVTPuppet puppetNamed:puppetName options:nil];
-    [self.contentView.puppetView setAvatarInstance:(AVTAvatarInstance *)puppet];
+- (NSURL *)mergedMovieURL {
+    NSURL *documentURL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    return [documentURL URLByAppendingPathComponent:@"merged.mov"];
 }
 
 // Pragma mark: - SBSPuppetViewDelegate
@@ -178,7 +288,7 @@
 
 - (void)puppetViewDidStartRecording:(SBSPuppetView *)puppetView {
     self.hasExportedMovie = NO;
-    [self removeExistingMovieFile];
+    [self removeExistingAnimojiMovieFile];
     [self.contentView.recordButton setImage:[UIImage imageNamed:@"stop-recording"] forState:UIControlStateNormal];
     self.contentView.durationLabel.text = @"00:00";
     self.contentView.durationLabel.hidden = NO;
@@ -208,7 +318,9 @@
     [UIView animateWithDuration:0.3 animations:^{
         self.contentView.thumbnailsCollectionView.alpha = 1;
     }];
-    [self startPreview];
+    if (self.hasRecording) {
+        [self startPreview];
+    }
 }
 
 // Pragma mark: - UICollectionViewDataSource
@@ -235,6 +347,37 @@
     if (puppetName != nil) {
         [self showPuppetNamed:puppetName];
     }
+}
+
+// MARK - YouTubePickerViewControllerDelegate
+
+- (void)youTubePickerViewController:(YouTubePickerViewController *)youTubePickerViewController didPickVideoWithId:(NSString *)videoId {
+    [self dismissViewControllerAnimated:YES completion:nil];
+    [self.playerViewController showVideoWithId:videoId];
+    self.contentView.playerContainerView.hidden = NO;
+}
+
+// MARK - YouTubePlayerViewControllerDelegate
+
+- (void)youTubePlayerViewController:(YouTubePlayerViewController *)youTubePlayerViewController didLoadVideoWithId:(NSString *)videoId {
+    self.youTubeVideoId = videoId;
+    [self updateThumbnailsContentInset];
+}
+
+- (void)youTubePlayerViewControllerDidFinish:(YouTubePlayerViewController *)youTubePlayerViewController {}
+
+- (void)youTubePlayerViewControllerDidClose:(YouTubePlayerViewController *)youTubePlayerViewController {
+    self.youTubeVideoId = nil;
+    self.audioStartTime = kCMTimeInvalid;
+    self.audioEndTime = kCMTimeInvalid;
+    [UIView animateWithDuration:0.3 animations:^{
+        self.contentView.playerContainerView.alpha = 0;
+    } completion:^(BOOL finished) {
+        self.contentView.playerContainerView.hidden = YES;
+        self.contentView.playerContainerView.alpha = 1;
+        [self.playerViewController removeVideo];
+    }];
+    [self updateThumbnailsContentInset];
 }
 
 @end

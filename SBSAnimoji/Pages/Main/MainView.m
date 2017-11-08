@@ -19,6 +19,8 @@
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
 @property (nonatomic, strong) UILabel *durationLabel;
 @property (nonatomic, strong) UIView *puppetViewSeparatorView;
+@property (nonatomic, strong) UIButton *pickAudioButton;
+@property (nonatomic, strong) UIView *playerContainerView;
 @end
 
 @implementation MainView
@@ -44,15 +46,13 @@
     [self addSubview:self.puppetViewSeparatorView];
     
     UICollectionViewFlowLayout *collectionViewLayout = [[UICollectionViewFlowLayout alloc] init];
-    collectionViewLayout.itemSize = CGSizeMake(80, 80);
     collectionViewLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
     collectionViewLayout.minimumInteritemSpacing = 14;
     collectionViewLayout.minimumLineSpacing = 10;
     self.thumbnailsCollectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:collectionViewLayout];
     self.thumbnailsCollectionView.translatesAutoresizingMaskIntoConstraints = NO;
-    self.thumbnailsCollectionView.backgroundColor = [UIColor whiteColor];
-    self.thumbnailsCollectionView.contentInset = UIEdgeInsetsMake(15, 7, 15, 7);
-    self.thumbnailsCollectionView.showsHorizontalScrollIndicator = NO;
+    self.thumbnailsCollectionView.backgroundColor = [UIColor whiteColor];    
+    self.thumbnailsCollectionView.showsVerticalScrollIndicator = NO;
     [self addSubview:self.thumbnailsCollectionView];
     
     self.durationLabel = [[UILabel alloc] init];
@@ -89,6 +89,19 @@
     self.activityIndicatorView.translatesAutoresizingMaskIntoConstraints = NO;
     self.activityIndicatorView.hidesWhenStopped = YES;
     [self addSubview:self.activityIndicatorView];
+    
+    self.pickAudioButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.pickAudioButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.pickAudioButton setImage:[UIImage imageNamed:@"karaoke"] forState:UIControlStateNormal];
+    [self.pickAudioButton setTitle:NSLocalizedString(@"START_KARAOKE", @"") forState:UIControlStateNormal];
+    [self.pickAudioButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 3, 0, -3)];
+    [self.pickAudioButton setImageEdgeInsets:UIEdgeInsetsMake(0, -3, 0, 3)];
+    [self addSubview:self.pickAudioButton];
+    
+    self.playerContainerView = [[UIView alloc] init];
+    self.playerContainerView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.playerContainerView.hidden = YES;
+    [self addSubview:self.playerContainerView];
 }
 
 - (void)setupLayout {
@@ -124,6 +137,12 @@
 
     [self.activityIndicatorView.centerXAnchor constraintEqualToAnchor:self.shareButton.centerXAnchor].active = YES;
     [self.activityIndicatorView.centerYAnchor constraintEqualToAnchor:self.shareButton.centerYAnchor].active = YES;
+    
+    [self.pickAudioButton.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:-15].active = YES;
+    [self.pickAudioButton.bottomAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.bottomAnchor constant:-15].active = YES;
+    
+    [self.playerContainerView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:-15].active = YES;
+    [self.playerContainerView.bottomAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.bottomAnchor constant:-15].active = YES;
 }
 
 - (void)layoutSubviews {
@@ -135,6 +154,15 @@
     CGFloat availableWidth = self.bounds.size.width - contentInset.left - contentInset.right - (itemsPerRow - 1) * flowLayout.minimumInteritemSpacing;
     CGFloat itemLength = floor(availableWidth / itemsPerRow);
     flowLayout.itemSize = CGSizeMake(itemLength, itemLength);
+}
+
+- (void)addPlayerView:(UIView *)playerView {
+    playerView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.playerContainerView addSubview:playerView];
+    [playerView.leadingAnchor constraintEqualToAnchor:self.playerContainerView.leadingAnchor].active = YES;
+    [playerView.trailingAnchor constraintEqualToAnchor:self.playerContainerView.trailingAnchor].active = YES;
+    [playerView.topAnchor constraintEqualToAnchor:self.playerContainerView.topAnchor].active = YES;
+    [playerView.bottomAnchor constraintEqualToAnchor:self.playerContainerView.bottomAnchor].active = YES;
 }
 
 @end

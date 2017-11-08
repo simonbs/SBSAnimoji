@@ -1,0 +1,9 @@
+{
+  "commitish" : "2.5.6",
+  "iOS" : [
+    {
+      "hash" : "bcd3ed141b9ec889d355befeccf645bd79354c7b94e9482402834a5833b2ce9b",
+      "name" : "XCDYouTubeKit"
+    }
+  ]
+}

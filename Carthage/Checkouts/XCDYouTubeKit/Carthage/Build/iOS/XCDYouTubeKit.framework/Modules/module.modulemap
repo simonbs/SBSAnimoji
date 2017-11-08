@@ -1,0 +1,6 @@
+framework module XCDYouTubeKit {
+  umbrella header "XCDYouTubeKit.h"
+
+  export *
+  module * { export * }
+}

@@ -20,4 +20,7 @@
 @property (nonatomic, readonly) UIButton *previewButton;
 @property (nonatomic, readonly) UIActivityIndicatorView *activityIndicatorView;
 @property (nonatomic, readonly) UILabel *durationLabel;
+@property (nonatomic, readonly) UIButton *pickAudioButton;
+@property (nonatomic, readonly) UIView *playerContainerView;
+- (void)addPlayerView:(UIView *)playerView;
 @end

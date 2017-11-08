@@ -18,7 +18,6 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:CGRectZero]) {
         [self setupView];
-        [self setupLayout];
     }
     return self;
 }
@@ -38,16 +37,11 @@
     [self.contentView addSubview:self.selectionImageView];
 }
 
-- (void)setupLayout {
-    [self.thumbnailImageView.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor constant: 7].active = YES;
-    [self.thumbnailImageView.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor constant: -7].active = YES;
-    [self.thumbnailImageView.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant: 7].active = YES;
-    [self.thumbnailImageView.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant: -7].active = YES;
-    
-    [self.selectionImageView.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor].active = YES;
-    [self.selectionImageView.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor].active = YES;
-    [self.selectionImageView.topAnchor constraintEqualToAnchor:self.contentView.topAnchor].active = YES;
-    [self.selectionImageView.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor].active = YES;
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    UIEdgeInsets thumbnailMargins = UIEdgeInsetsMake(7, 7, 7, 7);
+    self.thumbnailImageView.frame = UIEdgeInsetsInsetRect(self.contentView.bounds, thumbnailMargins);
+    self.selectionImageView.frame = self.contentView.bounds;
 }
 
 - (void)setSelected:(BOOL)selected {
