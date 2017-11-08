@@ -36,17 +36,17 @@
     
     {
         Ivar ivar = class_getInstanceVariable([AVTPuppetView class], "_rawTimes");
-        ((void (*)(id, Ivar, void *))object_setIvar)(self, ivar, [timesBuffer mutableBytes]);
+        object_setIvar(self, ivar, [timesBuffer mutableBytes]);
     }
     
     {
         Ivar ivar = class_getInstanceVariable([AVTPuppetView class], "_rawBlendShapes");
-        ((void (*)(id, Ivar, void *))object_setIvar)(self, ivar, [blendShapeBuffer mutableBytes]);
+        object_setIvar(self, ivar, [blendShapeBuffer mutableBytes]);
     }
     
     {
         Ivar ivar = class_getInstanceVariable([AVTPuppetView class], "_rawTransforms");
-        ((void (*)(id, Ivar, void *))object_setIvar)(self, ivar, [transformData mutableBytes]);
+        object_setIvar(self, ivar, [transformData mutableBytes]);
     }
     
     if ([self.sbsDelegate respondsToSelector:@selector(puppetViewDidStartRecording:)]) {
