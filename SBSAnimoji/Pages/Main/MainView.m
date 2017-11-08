@@ -44,7 +44,6 @@
     [self addSubview:self.puppetViewSeparatorView];
     
     UICollectionViewFlowLayout *collectionViewLayout = [[UICollectionViewFlowLayout alloc] init];
-    collectionViewLayout.itemSize = CGSizeMake(80, 80);
     collectionViewLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
     collectionViewLayout.minimumInteritemSpacing = 14;
     collectionViewLayout.minimumLineSpacing = 10;
