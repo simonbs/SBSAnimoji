@@ -20,14 +20,10 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>Tracking your face</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Recording your voice</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Saving your video</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
@@ -43,5 +39,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Tracking your face</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Recording your voice</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Saving your video</string>
 </dict>
 </plist>
