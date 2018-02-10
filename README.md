@@ -1,6 +1,6 @@
 # SBSAnimoji
 
-Fooling around with Apples private framework AvatarKit, the framework used in Messages.app for recording Animoji videos.
+Fooling around with Apples private framework AvatarKit, the framework used in Messages.app for recording Animoji videos. If you are looking to create your own Animoji, take a look at [SBSCustomAnimoji](https://github.com/simonbs/SBSCustomAnimoji).
 
 ![Screenshot](https://github.com/simonbs/SBSAnimoji/raw/master/screenshot.png)
 
