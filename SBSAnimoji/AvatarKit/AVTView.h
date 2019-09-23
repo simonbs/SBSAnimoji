@@ -3,9 +3,8 @@
  */
 
 @import SceneKit;
+#import "AVTAnimoji.h"
 
-@class AVTAvatarInstance;
-
-@interface AVTAvatarView : SCNView
-@property (nonatomic, retain) AVTAvatarInstance *avatarInstance;
+@interface AVTView : SCNView
+@property (nonatomic, retain) AVTAvatar *avatar;
 @end

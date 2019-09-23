@@ -25,9 +25,6 @@
 		7203853C1FB0FA1A00FDEDE6 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		7203853D1FB0FA1A00FDEDE6 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		720385401FB0FA1A00FDEDE6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		7203854B1FB0FA1A00FDEDE6 /* AVTAvatarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVTAvatarView.h; sourceTree = "<group>"; };
-		720385581FB0FA1A00FDEDE6 /* AVTPuppet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVTPuppet.h; sourceTree = "<group>"; };
-		7203855B1FB0FA1A00FDEDE6 /* AVTPuppetView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVTPuppetView.h; sourceTree = "<group>"; };
 		720385611FB0FA1A00FDEDE6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		720385631FB0FA1A00FDEDE6 /* MainView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainView.h; sourceTree = "<group>"; };
 		720385641FB0FA1A00FDEDE6 /* MainView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainView.m; sourceTree = "<group>"; };
@@ -38,6 +35,10 @@
 		7203856A1FB0FA1A00FDEDE6 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		7203856B1FB0FA1A00FDEDE6 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		720385761FB0FA2800FDEDE6 /* AvatarKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AvatarKit.framework; sourceTree = "<group>"; };
+		720D5FAC23389544005FD980 /* AVTRecordView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVTRecordView.h; sourceTree = "<group>"; };
+		720D5FAD23389544005FD980 /* AVTView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVTView.h; sourceTree = "<group>"; };
+		720D5FAE23389544005FD980 /* AVTAnimoji.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVTAnimoji.h; sourceTree = "<group>"; };
+		720D5FAF23389544005FD980 /* AVTAvatar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVTAvatar.h; sourceTree = "<group>"; };
 		72E21EE31FB101BC00F7C115 /* SBSPuppetView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SBSPuppetView.h; sourceTree = "<group>"; };
 		72E21EE41FB101BC00F7C115 /* SBSPuppetView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SBSPuppetView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -105,9 +106,10 @@
 		720385411FB0FA1A00FDEDE6 /* AvatarKit */ = {
 			isa = PBXGroup;
 			children = (
-				7203854B1FB0FA1A00FDEDE6 /* AVTAvatarView.h */,
-				720385581FB0FA1A00FDEDE6 /* AVTPuppet.h */,
-				7203855B1FB0FA1A00FDEDE6 /* AVTPuppetView.h */,
+				720D5FAF23389544005FD980 /* AVTAvatar.h */,
+				720D5FAE23389544005FD980 /* AVTAnimoji.h */,
+				720D5FAD23389544005FD980 /* AVTView.h */,
+				720D5FAC23389544005FD980 /* AVTRecordView.h */,
 			);
 			path = AvatarKit;
 			sourceTree = "<group>";
@@ -178,7 +180,7 @@
 		720385191FB0F9D900FDEDE6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0910;
+				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = SimonBS;
 				TargetAttributes = {
 					720385201FB0F9D900FDEDE6 = {
@@ -260,6 +262,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -267,6 +270,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -315,6 +319,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -322,6 +327,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

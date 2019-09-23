@@ -35,17 +35,17 @@
     [self setValue:transformData forKey:@"_rawTransformsData"];
     
     {
-        Ivar ivar = class_getInstanceVariable([AVTPuppetView class], "_rawTimes");
+        Ivar ivar = class_getInstanceVariable([AVTRecordView class], "_rawTimes");
         object_setIvar(self, ivar, [timesBuffer mutableBytes]);
     }
     
     {
-        Ivar ivar = class_getInstanceVariable([AVTPuppetView class], "_rawBlendShapes");
+        Ivar ivar = class_getInstanceVariable([AVTRecordView class], "_rawBlendShapes");
         object_setIvar(self, ivar, [blendShapeBuffer mutableBytes]);
     }
     
     {
-        Ivar ivar = class_getInstanceVariable([AVTPuppetView class], "_rawTransforms");
+        Ivar ivar = class_getInstanceVariable([AVTRecordView class], "_rawTransforms");
         object_setIvar(self, ivar, [transformData mutableBytes]);
     }
     

@@ -3,9 +3,9 @@
  */
 
 @import Foundation;
-#import "AVTAvatarView.h"
+#import "AVTView.h"
 
-@interface AVTPuppetView: AVTAvatarView
+@interface AVTRecordView: AVTView
 @property (getter=isPreviewing, nonatomic, readonly) bool previewing;
 @property (getter=isRecording, nonatomic, readonly) bool recording;
 - (void)audioPlayerItemDidReachEnd:(id)arg1;

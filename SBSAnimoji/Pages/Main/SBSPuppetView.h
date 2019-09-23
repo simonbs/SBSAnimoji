@@ -6,7 +6,7 @@
 //  Copyright © 2017 SimonBS. All rights reserved.
 //
 
-#import "AVTPuppetView.h"
+#import "AVTRecordView.h"
 
 @class SBSPuppetView;
 
@@ -16,6 +16,6 @@
 - (void)puppetViewDidStopRecording:(SBSPuppetView *)puppetView;
 @end
 
-@interface SBSPuppetView : AVTPuppetView
+@interface SBSPuppetView : AVTRecordView
 @property (nonatomic, weak) id<SBSPuppetViewDelegate> sbsDelegate;
 @end

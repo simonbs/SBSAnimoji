@@ -7,7 +7,7 @@
 //
 
 #import "MainView.h"
-#import "AVTPuppetView.h"
+#import "AVTRecordView.h"
 
 @interface MainView ()
 @property (nonatomic, strong) SBSPuppetView *puppetView;

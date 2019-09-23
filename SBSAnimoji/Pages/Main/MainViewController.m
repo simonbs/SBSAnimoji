@@ -8,14 +8,14 @@
 
 #import "MainViewController.h"
 #import "MainView.h"
-#import "AVTPuppet.h"
-#import "AVTPuppetView.h"
+#import "AVTAnimoji.h"
+#import "AVTRecordView.h"
 #import "PuppetThumbnailCollectionViewCell.h"
 
 @interface MainViewController () <SBSPuppetViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate>
 @property (nonatomic, readonly) MainView *contentView;
 @property (nonatomic, strong) NSTimer *durationTimer;
-@property (nonatomic, strong) NSArray *puppetNames;
+@property (nonatomic, strong) NSArray *animojiNames;
 @property (nonatomic, assign) BOOL hasExportedMovie;
 @property (nonatomic, assign, getter=isExporting) BOOL exporting;
 @end
@@ -27,7 +27,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.title = NSLocalizedString(@"MAIN_TITLE", @"");
-        self.puppetNames = [AVTPuppet puppetNames];
+        self.animojiNames = [AVTAnimoji animojiNames];
     }
     return self;
 }
@@ -54,7 +54,7 @@
     [self.contentView.deleteButton addTarget:self action:@selector(removeRecording) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView.previewButton addTarget:self action:@selector(startPreview) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView.shareButton addTarget:self action:@selector(share) forControlEvents:UIControlEventTouchUpInside];
-    [self showPuppetNamed:self.puppetNames[0]];
+    [self showAnimojiNamed:self.animojiNames[0]];
     [self.contentView.thumbnailsCollectionView selectItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] animated:NO scrollPosition:UICollectionViewScrollPositionNone];
 }
 
@@ -163,9 +163,9 @@
     return [documentURL URLByAppendingPathComponent:@"animoji.mov"];
 }
 
-- (void)showPuppetNamed:(NSString *)puppetName {
-    AVTPuppet *puppet = [AVTPuppet puppetNamed:puppetName options:nil];
-    [self.contentView.puppetView setAvatarInstance:(AVTAvatarInstance *)puppet];
+- (void)showAnimojiNamed:(NSString *)animojiName {
+    AVTAnimoji *animoji = [AVTAnimoji animojiNamed:animojiName];
+    self.contentView.puppetView.avatar = animoji;
 }
 
 // Pragma mark: - SBSPuppetViewDelegate
@@ -218,22 +218,22 @@
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return [self.puppetNames count];
+    return [self.animojiNames count];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
     PuppetThumbnailCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"thumbnail" forIndexPath:indexPath];
-    NSString *puppetName = self.puppetNames[indexPath.item];
-    cell.thumbnailImageView.image = [AVTPuppet thumbnailForPuppetNamed:puppetName options:nil];
+    NSString *animojiName = self.animojiNames[indexPath.item];
+    cell.thumbnailImageView.image = [AVTAnimoji thumbnailForAnimojiNamed:animojiName options:nil];
     return cell;
 }
 
 // Pragma mark: - UICollectionViewDelegate
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    NSString *puppetName = self.puppetNames[indexPath.item];
+    NSString *puppetName = self.animojiNames[indexPath.item];
     if (puppetName != nil) {
-        [self showPuppetNamed:puppetName];
+        [self showAnimojiNamed:puppetName];
     }
 }
 
