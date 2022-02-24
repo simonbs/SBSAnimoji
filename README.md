@@ -11,7 +11,7 @@ Mentions in the news:
 - [MacStories](https://www.macstories.net/linked/animoji-and-avatarkit/)
 - [PhoneArena](https://www.phonearena.com/news/iOS-developer-creates-stand-alone-Animoji-app-with-longer-recording-time_id99588)
 
-![Screenshot](https://github.com/simonbs/SBSAnimoji/raw/master/screenshot.png)
+![Screenshot](https://github.com/simonbs/SBSAnimoji/raw/main/screenshot.png)
 
 ### What you get
 
